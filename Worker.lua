@@ -4,9 +4,11 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players           = game:GetService("Players")
 
-local DC  = require(ReplicatedStorage.Modules.DualContouring)
-local SDF = require(ReplicatedStorage.Modules.SDF)
-local MountainUtil = require(ReplicatedStorage.Modules.MountainUtil)
+local ModulesFolder = ReplicatedStorage:WaitForChild("Modules")
+
+local DC  = require(ModulesFolder:WaitForChild("DualContouring"))
+local SDF = require(ModulesFolder:WaitForChild("SDF"))
+local MountainUtil = require(ModulesFolder:WaitForChild("MountainUtil"))
 
 -- --- Config ---------------------------------------------------------
 local GROUND_RAISE_VOX  = 2.0

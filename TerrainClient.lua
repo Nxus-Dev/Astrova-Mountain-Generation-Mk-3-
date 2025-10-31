@@ -50,7 +50,7 @@ local SETTINGS = {
 	YCells        = 20,    -- chunk height in cells (one vertical band)
 
 	-- Visible square (render distance) in rings.  With a large render radius,
-	-- many chunks will be streamed.  Setting this to 10 provides a 21×21
+	-- many chunks will be streamed.  Setting this to 10 provides a 21Ã—21
 	-- grid of chunks around the player.  Combine with larger LOD bands to
 	-- reduce detail as distance increases.
 	RenderRadius  = 10,
@@ -72,12 +72,14 @@ local SETTINGS = {
 	-- progressively decrease the resolution of far chunks to keep generation
 	-- time and memory manageable.  Each band specifies the maximum ring
 	-- distance and the voxel factor (CellsPerAxis / factor).  For example,
-	-- factor 4 produces 16×16×5 cells; factor 12 produces ~5×5×2 cells.
+local ModulesFolder = ReplicatedStorage:WaitForChild("Modules")
+
+local ChunkManager = require(ModulesFolder:WaitForChild("ChunkManager"))
 	LODBands = {
-		{ maxDist = 1,  factor = 4  }, -- ring 0–1: high detail
-		{ maxDist = 3,  factor = 6  }, -- rings 2–3
-		{ maxDist = 6,  factor = 8  }, -- rings 4–6
-		{ maxDist = 10, factor = 12 }, -- rings 7–10
+		{ maxDist = 1,  factor = 4  }, -- ring 0â€“1: high detail
+		{ maxDist = 3,  factor = 6  }, -- rings 2â€“3
+		{ maxDist = 6,  factor = 8  }, -- rings 4â€“6
+		{ maxDist = 10, factor = 12 }, -- rings 7â€“10
 		{ maxDist = math.huge, factor = 16 }, -- beyond: very coarse
 	},
 }
