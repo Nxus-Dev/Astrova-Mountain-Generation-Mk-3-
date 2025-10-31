@@ -55,17 +55,19 @@ local STRICT_SWAP = false
 
 -- Inbox: commit from workers ---------------------------------------
 script.Parent:BindToMessage("commitChunk", function(payload)
-	if type(payload) ~= "table" then return end
-	local key   = payload.Key
-	local verts = payload.Verts
-	local tris  = payload.Tris
-	local opts  = payload.Opts or {}
-	local nonce = payload.Nonce
+        if type(payload) ~= "table" then return end
+        local key   = payload.Key
+        local verts = payload.Verts
+        local tris  = payload.Tris
+        local opts  = payload.Opts or {}
+        local nonce = payload.Nonce
+        local stats = payload.Stats
+        local mountainInfo = payload.Mountain
 
-	if not key or type(verts) ~= "table" or type(tris) ~= "table" then
-		warn("[ManagerInbox] Bad payload")
-		return
-	end
+        if not key or type(verts) ~= "table" or type(tris) ~= "table" then
+                warn("[ManagerInbox] Bad payload")
+                return
+        end
 
 	-- Stale job? (newer nonce owns the key)
 	if nonce and not markerAliveWithNonce(key, nonce) then
@@ -76,15 +78,35 @@ script.Parent:BindToMessage("commitChunk", function(payload)
 		pcall(function() MeshPool.unloadChunk(key) end)
 	end
 
-	local ok = MeshPool.addOrReplaceChunk(key, verts, tris, opts)
-	if not ok then
-		warn("[ManagerInbox] addOrReplace failed for", key)
-		return
-	end
+        local ok = MeshPool.addOrReplaceChunk(key, verts, tris, opts)
+        if not ok then
+                warn("[ManagerInbox] addOrReplace failed for", key)
+                return
+        end
 
-	if nonce then
-		finalizeMarker(key, nonce)
-	end
+        if nonce then
+                finalizeMarker(key, nonce)
+        end
+
+        local marker = getChunkFolder():FindFirstChild(key)
+        if marker then
+                if stats then
+                        marker:SetAttribute("TriCount", stats.Triangles or #tris)
+                        marker:SetAttribute("VertCount", stats.Vertices or #verts)
+                        marker:SetAttribute("LODLevel", stats.LOD or 0)
+                        marker:SetAttribute("EstimatedTris", stats.EstimatedTris or 0)
+                        marker:SetAttribute("EstimatedVerts", stats.EstimatedVerts or 0)
+                else
+                        marker:SetAttribute("TriCount", #tris)
+                        marker:SetAttribute("VertCount", #verts)
+                end
+                if mountainInfo then
+                        marker:SetAttribute("IsMountain", true)
+                        marker:SetAttribute("BandIndex", mountainInfo.BandIndex or 0)
+                        marker:SetAttribute("TileId", mountainInfo.TileId or 0)
+                        marker:SetAttribute("SegmentIndex", mountainInfo.SegmentIndex or 0)
+                end
+        end
 end)
 
 -- Inbox: unload from ChunkManager ----------------------------------
