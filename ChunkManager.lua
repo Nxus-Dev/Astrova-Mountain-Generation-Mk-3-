@@ -4,9 +4,11 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local MountainUtil = require(ReplicatedStorage.Modules.MountainUtil)
+local ModulesFolder = ReplicatedStorage:WaitForChild("Modules")
+
+local MountainUtil = require(ModulesFolder:WaitForChild("MountainUtil"))
 local MountainConfig = MountainUtil.config()
-local MountainDebugOverlay = require(ReplicatedStorage.Modules.MountainDebugOverlay)
+local MountainDebugOverlay = require(ModulesFolder:WaitForChild("MountainDebugOverlay"))
 
 local ChunkManager = {}
 ChunkManager.__index = ChunkManager

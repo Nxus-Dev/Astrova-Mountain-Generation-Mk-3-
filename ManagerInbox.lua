@@ -4,7 +4,9 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local MeshPool = require(ReplicatedStorage.Modules.MeshPool)
+local ModulesFolder = ReplicatedStorage:WaitForChild("Modules")
+
+local MeshPool = require(ModulesFolder:WaitForChild("MeshPool"))
 
 -- Initialize once (tune if needed)
 -- Initialize the MeshPool with a smaller pool size to reduce memory usage.  A
