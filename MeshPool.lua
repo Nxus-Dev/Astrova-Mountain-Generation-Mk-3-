@@ -25,7 +25,7 @@ local MeshPool = {}
 -- necessarily correspond to accuracy.  For example, Hull (1) is less
 -- accurate than Default (0) because Hull produces a single convex hull
 -- while Default voxelizes and may better approximate slopes and concave
--- surfaces?802672436925696†screenshot?.  PreciseConvexDecomposition (3) is the
+-- surfaces?802672436925696Â†screenshot?.  PreciseConvexDecomposition (3) is the
 -- most accurate.  Use this ranking table to select the most accurate
 -- fidelity when aggregating requirements across chunks.
 local CF_RANK = {
@@ -194,7 +194,7 @@ local function applyPoolMesh(entry)
 	-- Historically this function attempted an in-place ApplyMesh() on the existing
 	-- MeshPart, only falling back to creating a new MeshPart if ApplyMesh failed.
 	-- However, collisions for EditableMesh objects can become out of sync with the
-	-- visual geometry when ApplyMesh is used repeatedly?85239273133226†L54-L67?.  To ensure
+	-- visual geometry when ApplyMesh is used repeatedly?85239273133226Â†L54-L67?.  To ensure
 	-- that the physics geometry matches the new mesh each time, we now always
 	-- create a fresh MeshPart from the generated content. This forces Roblox to
 	-- recalc the collision data and eliminates the slight gap that could be
@@ -210,7 +210,7 @@ local function applyPoolMesh(entry)
 		if cf then
 			-- Use capitalized keys for CreateMeshPartAsync options.  Roblox's
 			-- AssetService expects `CollisionFidelity` and `RenderFidelity`
-			-- rather than lower-case names?870761339834114†L515-L519?.  Passing
+			-- rather than lower-case names?870761339834114Â†L515-L519?.  Passing
 			-- these ensures the resulting MeshPart uses the desired
 			-- collision fidelity and render fidelity.  Without these keys,
 			-- the default (Hull) is used, leading to inaccurate collisions.
@@ -222,7 +222,7 @@ local function applyPoolMesh(entry)
 	local okNew, newPartOrErr = pcall(function()
 		-- Pass options table if a collision fidelity is specified.  Some API
 		-- versions may expect lower-case keys (collisionFidelity), as per
-		-- documentation?870761339834114†L515-L519?.
+		-- documentation?870761339834114Â†L515-L519?.
 		return AssetService:CreateMeshPartAsync(content, createOpts)
 	end)
 	if not okNew or not newPartOrErr then
@@ -645,11 +645,12 @@ function MeshPool.addOrReplaceChunk(key, srcVerts, srcTris, opts)
 		entry.vertCount = (entry.vertCount or 0) + (pack.vertsAdded or 0)
 		entry.chunkMap[key] = pack
 		CHUNK_INDEX[key] = { poolIdx = poolIdx, faceIds = pack.faceIds, vertsAdded = pack.vertsAdded }
+                print(string.format("[MeshPool] store %s -> pool %d tris=%d verts=%d", tostring(key), poolIdx, entry.triCount or 0, entry.vertCount or 0))
 		-- Update the aggregated collision fidelity for this entry.  Each chunk may
 		-- request a different fidelity (e.g. PreciseConvexDecomposition or Default).
 		-- We choose the most accurate fidelity based on CF_RANK, not the enum
 		-- numeric Value, because numeric values do not correspond directly to
-		-- accuracy?802672436925696†screenshot?.  If the new pack's fidelity has a higher
+		-- accuracy?802672436925696Â†screenshot?.  If the new pack's fidelity has a higher
 		-- rank than the current entry's fidelity, upgrade.
 		do
 			local target = pack.collisionFidelity
@@ -714,8 +715,9 @@ function MeshPool.addOrReplaceChunk(key, srcVerts, srcTris, opts)
 	entry.vertCount = (entry.vertCount or 0) + (pack.vertsAdded or 0)
 	entry.chunkMap[key] = pack
 	CHUNK_INDEX[key] = { poolIdx = poolIdx, faceIds = pack.faceIds, vertsAdded = pack.vertsAdded }
+	print(string.format("[MeshPool] store %s -> pool %d tris=%d verts=%d", tostring(key), poolIdx, entry.triCount or 0, entry.vertCount or 0))
 	-- Update the aggregated collision fidelity for this entry.  Use CF_RANK to
-	-- determine which fidelity is most accurate?802672436925696†screenshot?.
+	-- determine which fidelity is most accurate?802672436925696Â†screenshot?.
 	do
 		local target = pack.collisionFidelity
 		if target then
@@ -738,7 +740,7 @@ function MeshPool.addOrReplaceChunk(key, srcVerts, srcTris, opts)
 		old.chunkMap[key] = nil
 		-- Recompute the aggregated collision fidelity for the old entry.  After
 		-- removing a chunk, find the most accurate fidelity among the remaining
-		-- packs using CF_RANK?802672436925696†screenshot?.
+		-- packs using CF_RANK?802672436925696Â†screenshot?.
 		do
 			local highest = nil
 			local highestRank = -math.huge
@@ -773,6 +775,7 @@ function MeshPool.unloadChunk(key)
 	entry.vertCount = math.max(0, (entry.vertCount or 0) - (rec.vertsAdded or 0))
 	entry.chunkMap[key] = nil
 	CHUNK_INDEX[key] = nil
+	print(string.format("[MeshPool] unload %s pool=%d tris=%d verts=%d", tostring(key), rec.poolIdx, entry.triCount or 0, entry.vertCount or 0))
 
 	-- After removal, recompute the aggregated collision fidelity for this entry.
 	do
